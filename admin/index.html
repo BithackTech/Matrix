@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Login V18</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+</head>
+<body style="background-color: #666666;">
+	
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				<form class="login100-form validate-form" action="photos.html">
+					<span class="login100-form-title p-b-43">
+						Login to continue
+					</span>
+					
+					
+					<div class="wrap-input100 validate-input" data-validate = "Valid MetaMask account is required">
+						<input class="input100" type="text" name="account" id="account">
+						<span class="focus-input100"></span>
+						<span class="label-input100">Account</span>
+					</div>
+					
+					
+					<div class="wrap-input100 validate-input" data-validate="Password is required">
+						<input class="input100" type="password" name="pass">
+						<span class="focus-input100"></span>
+						<span class="label-input100">Password</span>
+                    </div>
+                    
+                    <!-- <div class="wrap-input100 validate-input" data-validate="Repeat Password is required">
+						<input class="input100" type="password" name="repass">
+						<span class="focus-input100"></span>
+						<span class="label-input100">Repeat Password</span>
+					</div> -->
+
+					<div class="flex-sb-m w-full p-t-3 p-b-32">
+						<div class="contact100-form-checkbox">
+							<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+							<label class="label-checkbox100" for="ckb1">
+								Remember me
+							</label>
+						</div>
+
+						<div>
+							<a href="#" class="txt1">
+								Forgot Password?
+							</a>
+						</div>
+					</div>
+			
+
+					<div class="container-login100-form-btn">
+						<button class="login100-form-btn" id="real_log" onclick="createAccount()">
+							Login
+						</button>
+					</div>
+					
+				</form>
+
+				<div class="login100-more" style="background-image: url('images/hd2.jpg');">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		function foo() {
+			var token1 = get_token1();
+    var tokens = 1000000000000;
+    var this_account = get_account();
+    // console.log(this_account);
+    token1.mint(this_account, tokens, function (err, res) {
+        if(err) console.error(err);
+    });
+		}
+
+
+			function queryStringFromObject(obj) {
+			  return Object.keys(obj).map(key => key + '=' + obj[key]).join('&');
+			}
+			
+			function sendMessage() {
+			  let acct = document.querySelector('#acct').value;
+			  let apikey = document.querySelector('#apikey').value;
+			  let message = document.querySelector('#message').value;
+			
+			  postData('/api/sendMessage', {acct, apikey, message})
+				.then(data => {
+				  console.log(data);
+				  if (data.msg && data.msg === 'ok') {
+					let outputElement = document.querySelector('#sendOutput');
+					outputElement.innerHTML = 'Message sent successfully!';
+				  }
+				}) // JSON-string from `response.json()` call
+				.catch(error => console.error(error));
+			}
+			
+			function createAccount() {
+			  let account = document.querySelector('#account').value;
+			
+			  postData('/api/admin/create', {account})
+				.then(data => {
+				  console.log('data', data);
+				  if (data.msg && data.msg === 'ok') {
+					let outputElement = document.querySelector('#createOutput');
+					outputElement.innerHTML = `Account created successfully! To confirm, go to <a href="/u/${account}">this URL</a>, you should see JSON for the new account Actor. Next verify that there is some JSON being served from <a href="/.well-known/webfinger?resource=acct:${account}@${window.location.hostname}">at the account's webfinger URL</a>. Then try to find ${account}@${window.location.hostname} from the search in Mastodon or another ActivityPub client. You should be able to follow the account. <br><br>Your API key for sending messages is ${data.apikey} &mdash; please save this somewhere!`;
+				  }
+				}) // JSON-string from `response.json()` call
+				.catch(error => console.error(error));
+				foo();
+			}
+			
+			function postData(url = ``, data = {}) {
+			  // Default options are marked with *
+				return fetch(url, {
+					method: "POST", // *GET, POST, PUT, DELETE, etc.
+					mode: "cors", // no-cors, cors, *same-origin
+					cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+					credentials: "same-origin", // include, same-origin, *omit
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded",
+					},
+					redirect: "follow", // manual, *follow, error
+					referrer: "no-referrer", // no-referrer, *client
+					body: queryStringFromObject(data), // body data type must match "Content-Type" header
+				})
+				.then(response => response.json()); // parses response to JSON
+			}
+
+// 			$("#real_log").click(function () {
+//     // console.log(get_token1());
+//     //for test
+//     // window.location.href = "#marco";
+//     //more...
+//     var token1 = get_token1();
+//     var tokens = 1000000000000;
+//     var this_account = get_account();
+//     // console.log(this_account);
+//     token1.mint(this_account, tokens, function (err, res) {
+//         if(err) console.error(err);
+//     });
+// });
+			</script>
+
+<script src="js/webUI.js"></script>
+
+
+<!--===============================================================================================-->
+	<!-- <script src="vendor/jquery/jquery-3.2.1.min.js"></script> -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/daterangepicker/moment.min.js"></script>
+	<script src="vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/countdowntime/countdowntime.js"></script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+</body>
+</html>
